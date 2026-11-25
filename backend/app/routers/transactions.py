@@ -16,7 +16,7 @@ async def _ensure_category_exists(user_id, name: str, tx_type: str) -> None:
     found = await get_db().categories.find_one({"user_id": user_id, "name": name, "type": tx_type})
     if found is None:
         raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_ENTITY, f"'{name}' is not one of your {tx_type} categories"
+            422, f"'{name}' is not one of your {tx_type} categories"
         )
 
 

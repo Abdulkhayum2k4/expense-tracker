@@ -1,5 +1,7 @@
 # Personal Expense Tracker
 
+[![CI](https://github.com/Abdulkhayum2k4/expense-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/Abdulkhayum2k4/expense-tracker/actions/workflows/ci.yml)
+
 Register, log in, and track income, expenses and monthly budgets per category, with charts.
 
 | Layer | Technology |
@@ -89,6 +91,20 @@ npm run dev
 
 Open http://localhost:5173. In development, Vite forwards `/api` to `http://localhost:8000`, so no CORS setup is needed.
 To change the currency (default INR), copy `frontend/.env.example` to `frontend/.env.local` and edit `VITE_CURRENCY` / `VITE_LOCALE`.
+
+### Tests
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+pytest                          # needs MongoDB on localhost:27017; uses a separate expense_tracker_test database
+
+cd ../frontend
+npm test
+```
+
+Tests that need MongoDB are skipped with a message if it isn't running. GitHub Actions runs everything
+against a real MongoDB on every push.
 
 ### 3. Postman
 

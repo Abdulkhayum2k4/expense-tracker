@@ -39,7 +39,7 @@ def _budget_out(doc: dict, spent: float) -> dict:
 async def _ensure_expense_category(user_id, name: str) -> None:
     found = await get_db().categories.find_one({"user_id": user_id, "name": name, "type": "expense"})
     if found is None:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, f"'{name}' is not one of your expense categories")
+        raise HTTPException(422, f"'{name}' is not one of your expense categories")
 
 
 async def _with_spent(user_id, doc: dict) -> dict:
