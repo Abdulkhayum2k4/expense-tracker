@@ -24,8 +24,9 @@ def test_password_hashing_uses_argon2():
 
 
 def test_jwt_round_trip_and_tampering():
-    token = create_access_token("507f1f77bcf86cd799439011")
-    assert decode_access_token(token) == "507f1f77bcf86cd799439011"
+    token = create_access_token("507f1f77bcf86cd799439011", version=3)
+    claims = decode_access_token(token)
+    assert claims.user_id == "507f1f77bcf86cd799439011" and claims.version == 3
     assert decode_access_token(token + "x") is None
     assert decode_access_token("garbage") is None
 

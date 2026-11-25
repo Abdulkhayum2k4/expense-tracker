@@ -1,7 +1,9 @@
 import { computed, reactive } from 'vue'
 
-const TOKEN_KEY = 'expense_tracker_token'
+// The session itself lives in an httpOnly cookie that JavaScript can't read.
+// Only the user's profile is cached here, so the UI can render before /auth/me answers.
 const USER_KEY = 'expense_tracker_user'
+localStorage.removeItem('expense_tracker_token') // left over from the localStorage-token version
 
 function readUser() {
   try {
@@ -11,27 +13,25 @@ function readUser() {
   }
 }
 
-const state = reactive({
-  token: localStorage.getItem(TOKEN_KEY),
-  user: readUser(),
-})
+const state = reactive({ user: readUser() })
 
 export const auth = {
   state,
-  isAuthenticated: computed(() => Boolean(state.token)),
+  isAuthenticated: computed(() => Boolean(state.user)),
 
-  /** Store the response of /auth/login or /auth/register. */
-  setSession({ access_token, user }) {
-    state.token = access_token
+  setUser(user) {
     state.user = user
-    localStorage.setItem(TOKEN_KEY, access_token)
-    localStorage.setItem(USER_KEY, JSON.stringify(user))
+    if (user) localStorage.setItem(USER_KEY, JSON.stringify(user))
+    else localStorage.removeItem(USER_KEY)
   },
 
-  logout() {
-    state.token = null
-    state.user = null
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(USER_KEY)
+  /** Store the response of /auth/login or /auth/register. */
+  setSession({ user }) {
+    this.setUser(user)
+  },
+
+  /** Forget the user locally (the server-side cookie is cleared by /auth/logout). */
+  clear() {
+    this.setUser(null)
   },
 }

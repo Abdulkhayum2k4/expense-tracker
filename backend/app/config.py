@@ -11,6 +11,11 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24
 
+    # The auth cookie is only sent over HTTPS when true. Set it in production.
+    cookie_secure: bool = False
+    # Set to false in tests to turn off login/register rate limits.
+    rate_limit_enabled: bool = True
+
     cors_origins: list[str] = ["http://localhost:5173"]
 
 

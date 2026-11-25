@@ -1,16 +1,18 @@
 from typing import Annotated
 
 from bson import ObjectId
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.database import get_db
-from app.security import decode_access_token
+from app.security import AUTH_COOKIE, decode_access_token
 
+# Bearer is still accepted so Swagger's "Authorize" button and Postman work.
 _bearer = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
+    request: Request,
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
 ) -> dict:
     unauthorized = HTTPException(
@@ -18,13 +20,15 @@ async def get_current_user(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    if credentials is None:
+    token = credentials.credentials if credentials else request.cookies.get(AUTH_COOKIE)
+    if not token:
         raise unauthorized
-    user_id = decode_access_token(credentials.credentials)
-    if user_id is None or not ObjectId.is_valid(user_id):
+    claims = decode_access_token(token)
+    if claims is None or not ObjectId.is_valid(claims.user_id):
         raise unauthorized
-    user = await get_db().users.find_one({"_id": ObjectId(user_id)})
-    if user is None:
+    user = await get_db().users.find_one({"_id": ObjectId(claims.user_id)})
+    # A password change bumps token_version, which revokes every token issued before it.
+    if user is None or user.get("token_version", 0) != claims.version:
         raise unauthorized
     return user
 

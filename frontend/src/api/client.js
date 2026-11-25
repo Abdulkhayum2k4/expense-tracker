@@ -2,25 +2,25 @@ import axios from 'axios'
 import { auth } from '@/stores/auth'
 import router from '@/router'
 
-const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL || ''}/api`,
-  timeout: 15000,
-})
+export const API_BASE = `${import.meta.env.VITE_API_URL || ''}/api`
 
-api.interceptors.request.use((config) => {
-  if (auth.state.token) {
-    config.headers.Authorization = `Bearer ${auth.state.token}`
-  }
-  return config
+const api = axios.create({
+  baseURL: API_BASE,
+  timeout: 15000,
+  withCredentials: true, // send the httpOnly auth cookie
 })
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // An expired or invalid token: drop the session and send the user to log in again.
-    if (error.response?.status === 401 && auth.state.token) {
-      auth.logout()
+    // The session expired or was revoked: forget the user and send them to log in again.
+    const isLoginAttempt = error.config?.url?.startsWith('/auth/login')
+    if (error.response?.status === 401 && auth.state.user && !isLoginAttempt) {
+      auth.clear()
       router.push({ name: 'login', query: { redirect: router.currentRoute.value.fullPath } })
+    }
+    if (error.response?.status === 429) {
+      error.response.data = { detail: 'Too many attempts. Please wait a minute and try again.' }
     }
     return Promise.reject(error)
   },
@@ -46,6 +46,10 @@ export const authApi = {
   register: (data) => api.post('/auth/register', data).then((r) => r.data),
   login: (data) => api.post('/auth/login', data).then((r) => r.data),
   me: () => api.get('/auth/me').then((r) => r.data),
+  logout: () => api.post('/auth/logout'),
+  changePassword: (current_password, new_password) =>
+    api.put('/auth/password', { current_password, new_password }).then((r) => r.data),
+  deleteAccount: (password) => api.delete('/auth/me', { data: { password } }),
 }
 
 export const categoriesApi = {

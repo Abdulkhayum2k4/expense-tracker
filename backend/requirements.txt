@@ -4,3 +4,4 @@ pydantic[email]>=2.9
 pydantic-settings>=2.6
 pwdlib[argon2]>=0.2
 PyJWT>=2.10
+slowapi>=0.1.9

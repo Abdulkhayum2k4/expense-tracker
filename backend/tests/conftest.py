@@ -9,6 +9,7 @@ import os
 os.environ["MONGODB_DB"] = "expense_tracker_test"
 os.environ.setdefault("MONGODB_URL", "mongodb://localhost:27017")
 os.environ["JWT_SECRET"] = "test-secret-that-is-long-enough-for-hs256-0123456789"
+os.environ["RATE_LIMIT_ENABLED"] = "false"  # test_security turns it on for its own test
 
 import pytest
 from fastapi.testclient import TestClient

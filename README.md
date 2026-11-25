@@ -113,14 +113,19 @@ automatically and sent with every other request.
 
 ## API
 
-All routes except register, login and health need `Authorization: Bearer <token>`.
+Login and register set an **httpOnly cookie** (`access_token`, `SameSite=Lax`, `Secure` when `COOKIE_SECURE=true`),
+which is how the web app stays signed in: JavaScript never sees the token. The token is also returned in
+the response body, and `Authorization: Bearer <token>` is accepted, for Swagger and Postman.
 Every query is scoped to the logged-in user.
 
 | Method | Path | Notes |
 |---|---|---|
-| POST | `/api/auth/register` | `{name, email, password}` → token + user. Seeds default categories. |
-| POST | `/api/auth/login` | `{email, password}` → token + user |
+| POST | `/api/auth/register` | `{name, email, password}` → token + user. Seeds default categories. Limited to 3/min per IP. |
+| POST | `/api/auth/login` | `{email, password}` → token + user. Limited to 5/min per IP. |
+| POST | `/api/auth/logout` | clears the cookie |
 | GET | `/api/auth/me` | current user |
+| PUT | `/api/auth/password` | `{current_password, new_password}`. Signs out every other session (old tokens stop working). |
+| DELETE | `/api/auth/me` | `{password}`. Deletes the account and all of its data. |
 | GET/POST | `/api/categories` | `?type=expense\|income` |
 | PUT/DELETE | `/api/categories/{id}` | a rename carries over to transactions and budgets; delete is refused while transactions use it |
 | GET/POST | `/api/transactions` | filters: `type, category, start_date, end_date, search, page, page_size` |

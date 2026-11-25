@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { auth } from '@/stores/auth'
+import { authApi } from '@/api/client'
 
 const links = [
   { to: '/dashboard', label: 'Dashboard' },
@@ -17,9 +18,13 @@ const menuOpen = ref(false)
 
 watch(() => route.fullPath, () => (menuOpen.value = false))
 
-function logout() {
-  auth.logout()
-  router.push({ name: 'login' })
+async function logout() {
+  try {
+    await authApi.logout()
+  } finally {
+    auth.clear()
+    router.push({ name: 'login' })
+  }
 }
 </script>
 
