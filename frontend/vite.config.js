@@ -8,6 +8,9 @@ export default defineConfig({
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
+  test: {
+    environment: 'happy-dom', // provides localStorage, window and document
+  },
   server: {
     port: 5173,
     // In development, /api is forwarded to FastAPI so no CORS setup is needed.

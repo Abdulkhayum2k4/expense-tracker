@@ -165,13 +165,13 @@ onMounted(async () => {
               </td>
               <td
                 class="whitespace-nowrap px-4 py-3 text-right font-medium tabular-nums"
-                :class="t.type === 'income' ? 'text-green-700' : 'text-slate-900'"
+                :class="t.type === 'income' ? 'text-positive' : 'text-slate-900'"
               >
                 {{ t.type === 'income' ? '+' : '−' }}{{ formatMoney(t.amount) }}
               </td>
               <td class="whitespace-nowrap px-4 py-3 text-right">
                 <button class="btn-link mr-3" @click="editing = t">Edit</button>
-                <button class="text-sm font-medium text-red-600 hover:text-red-800" @click="deleting = t">Delete</button>
+                <button class="link-danger" @click="deleting = t">Delete</button>
               </td>
             </tr>
             <tr v-if="!loading && !result.items.length">

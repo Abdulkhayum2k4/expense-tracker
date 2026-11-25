@@ -1,12 +1,21 @@
-import { describe, expect, it } from 'vitest'
-import { formatDate, formatMoney, monthLabel, parseMonthValue } from './format'
+import { afterEach, describe, expect, it } from 'vitest'
+import { auth } from '@/stores/auth'
+import { currencySymbol, formatDate, formatMoney, monthLabel, parseMonthValue } from './format'
+
+afterEach(() => auth.clear())
 
 describe('formatMoney', () => {
   it('uses Indian digit grouping and the rupee sign by default', () => {
     expect(formatMoney(123456.5)).toBe('₹1,23,456.50')
+    expect(currencySymbol()).toBe('₹')
   })
   it('treats missing values as zero', () => {
     expect(formatMoney(undefined)).toBe('₹0.00')
+  })
+  it("follows the user's currency", () => {
+    auth.setUser({ name: 'A', currency: 'USD' })
+    expect(formatMoney(123456.5)).toBe('$123,456.50')
+    expect(currencySymbol()).toBe('$')
   })
 })
 

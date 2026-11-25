@@ -7,9 +7,9 @@ const props = defineProps({ budget: { type: Object, required: true } })
 
 const status = computed(() => {
   const p = props.budget.percent_used
-  if (p > 100) return { label: 'Over budget', icon: '!', color: '#dc3c3d', text: 'text-red-700' }
-  if (p >= 80) return { label: 'Near limit', icon: '▲', color: '#fbb315', text: 'text-amber-700' }
-  return { label: 'On track', icon: '✓', color: '#0aac23', text: 'text-green-700' }
+  if (p > 100) return { label: 'Over budget', icon: '!', color: '#dc3c3d', text: 'text-negative' }
+  if (p >= 80) return { label: 'Near limit', icon: '▲', color: '#fbb315', text: 'text-caution' }
+  return { label: 'On track', icon: '✓', color: '#0aac23', text: 'text-positive' }
 })
 const width = computed(() => `${Math.min(100, props.budget.percent_used)}%`)
 </script>

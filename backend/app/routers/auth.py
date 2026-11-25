@@ -8,7 +8,7 @@ from app.config import settings
 from app.database import get_db
 from app.deps import CurrentUser
 from app.rate_limit import limiter
-from app.schemas import AccountDelete, PasswordChange, TokenOut, UserCreate, UserLogin, UserOut
+from app.schemas import AccountDelete, PasswordChange, TokenOut, UserCreate, UserLogin, UserOut, UserUpdate
 from app.security import AUTH_COOKIE, create_access_token, hash_password, verify_password
 from app.serializers import user_out
 
@@ -66,6 +66,8 @@ async def register(request: Request, response: Response, data: UserCreate):
         "email": data.email.lower(),
         "password_hash": hash_password(data.password),
         "token_version": 0,
+        "currency": "INR",
+        "budget_alerts": True,
         "created_at": datetime.now(timezone.utc),
     }
     try:
@@ -94,6 +96,17 @@ async def logout():
 @router.get("/me", response_model=UserOut)
 async def me(user: CurrentUser):
     return user_out(user)
+
+
+@router.patch("/me", response_model=UserOut)
+async def update_me(data: UserUpdate, user: CurrentUser):
+    changes = data.model_dump(exclude_none=True)
+    if not changes:
+        return user_out(user)
+    updated = await get_db().users.find_one_and_update(
+        {"_id": user["_id"]}, {"$set": changes}, return_document=True
+    )
+    return user_out(updated)
 
 
 @router.put("/password", response_model=TokenOut)

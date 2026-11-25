@@ -19,6 +19,9 @@ def user_out(doc: dict) -> dict:
         "name": doc["name"],
         "email": doc["email"],
         "created_at": doc["created_at"],
+        # Defaults cover accounts created before these settings existed.
+        "currency": doc.get("currency", "INR"),
+        "budget_alerts": doc.get("budget_alerts", True),
     }
 
 

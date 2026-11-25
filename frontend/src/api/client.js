@@ -47,6 +47,8 @@ export const authApi = {
   login: (data) => api.post('/auth/login', data).then((r) => r.data),
   me: () => api.get('/auth/me').then((r) => r.data),
   logout: () => api.post('/auth/logout'),
+  /** changes: { name?, currency?, budget_alerts? } */
+  updateMe: (changes) => api.patch('/auth/me', changes).then((r) => r.data),
   changePassword: (current_password, new_password) =>
     api.put('/auth/password', { current_password, new_password }).then((r) => r.data),
   deleteAccount: (password) => api.delete('/auth/me', { data: { password } }),

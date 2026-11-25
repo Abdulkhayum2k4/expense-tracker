@@ -119,7 +119,7 @@ onMounted(load)
               <span class="text-sm">{{ c.name }}</span>
               <div class="flex shrink-0 gap-3">
                 <button class="btn-link" @click="startEdit(c)">Rename</button>
-                <button class="text-sm font-medium text-red-600 hover:text-red-800" @click="remove(c)">Delete</button>
+                <button class="link-danger" @click="remove(c)">Delete</button>
               </div>
             </template>
           </li>

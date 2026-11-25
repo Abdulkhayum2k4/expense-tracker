@@ -31,11 +31,23 @@ class AccountDelete(BaseModel):
     password: str = Field(min_length=1, max_length=128)
 
 
+Currency = Literal["INR", "USD", "EUR", "GBP", "AED", "SAR", "SGD", "AUD", "CAD", "JPY"]
+
+
 class UserOut(BaseModel):
     id: str
     name: str
     email: str
     created_at: datetime
+    currency: Currency
+    budget_alerts: bool
+
+
+class UserUpdate(BaseModel):
+    """PATCH /auth/me: only the fields sent are changed."""
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)] | None = None
+    currency: Currency | None = None
+    budget_alerts: bool | None = None
 
 
 class TokenOut(BaseModel):
@@ -76,6 +88,19 @@ class TransactionOut(BaseModel):
     category: str
     description: str
     date: date
+
+
+class BudgetAlert(BaseModel):
+    category: str
+    level: Literal["warning", "exceeded"]  # crossed 80%, or went over 100%
+    percent_used: float
+    spent: float
+    monthly_limit: float
+
+
+class TransactionSaved(TransactionOut):
+    """Create/update response: the transaction, plus an alert if it pushed a budget over a threshold."""
+    budget_alert: BudgetAlert | None = None
 
 
 class TransactionPage(BaseModel):

@@ -90,7 +90,7 @@ npm run dev
 ```
 
 Open http://localhost:5173. In development, Vite forwards `/api` to `http://localhost:8000`, so no CORS setup is needed.
-To change the currency (default INR), copy `frontend/.env.example` to `frontend/.env.local` and edit `VITE_CURRENCY` / `VITE_LOCALE`.
+Each user picks their display currency on the Settings page (default INR).
 
 ### Tests
 
@@ -123,13 +123,14 @@ Every query is scoped to the logged-in user.
 | POST | `/api/auth/register` | `{name, email, password}` → token + user. Seeds default categories. Limited to 3/min per IP. |
 | POST | `/api/auth/login` | `{email, password}` → token + user. Limited to 5/min per IP. |
 | POST | `/api/auth/logout` | clears the cookie |
-| GET | `/api/auth/me` | current user |
+| GET | `/api/auth/me` | current user, including `currency` and `budget_alerts` |
+| PATCH | `/api/auth/me` | `{name?, currency?, budget_alerts?}`: only the fields sent change |
 | PUT | `/api/auth/password` | `{current_password, new_password}`. Signs out every other session (old tokens stop working). |
 | DELETE | `/api/auth/me` | `{password}`. Deletes the account and all of its data. |
 | GET/POST | `/api/categories` | `?type=expense\|income` |
 | PUT/DELETE | `/api/categories/{id}` | a rename carries over to transactions and budgets; delete is refused while transactions use it |
 | GET/POST | `/api/transactions` | filters: `type, category, start_date, end_date, search, page, page_size` |
-| GET/PUT/DELETE | `/api/transactions/{id}` | |
+| GET/PUT/DELETE | `/api/transactions/{id}` | POST and PUT responses include `budget_alert` when the change pushed that month's budget past 80% (`warning`) or 100% (`exceeded`) |
 | GET/POST | `/api/budgets` | `?month=&year=` (defaults to the current month). Each budget includes `spent`, `remaining`, `percent_used` |
 | PUT/DELETE | `/api/budgets/{id}` | |
 | GET | `/api/analytics/summary` | `?month=&year=`: dashboard data: income, expense, savings and savings rate, total balance (all transactions to the end of that month), per-category breakdown, 5 latest transactions |
@@ -145,7 +146,8 @@ Every query is scoped to the logged-in user.
 | Transactions | Add, edit, delete and view income and expenses, with search, filters and paging |
 | Categories | Default set on sign-up (Food, Transport, Shopping, Bills, Salary…); add, rename, delete |
 | Analytics | Year totals and averages, monthly income vs spending, net savings per month, category breakdown for a month or year, month-over-month change per category |
-| Budgets | Monthly limit per expense category with spent / remaining / % used, and copying last month's budgets |
+| Budgets | Monthly limit per expense category with spent / remaining / % used, and copying last month's budgets. A notice pops up when an expense takes a budget past 80% or over its limit |
+| Settings | Name, display currency (INR, USD, EUR, GBP, AED, SAR, SGD, AUD, CAD, JPY), budget alerts on/off, light/dark/system theme, change password, delete account |
 
 ## Data model
 

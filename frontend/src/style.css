@@ -1,23 +1,70 @@
 @import "tailwindcss";
 
+/* Dark mode follows the .dark class on <html> (set by src/stores/theme.js). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   /* Chart / identity colours (validated categorical slots 1 and 2) */
   --color-income: #257de0;
   --color-expense: #f47230;
+  /* Cards, inputs, nav, modals. Use bg-surface instead of bg-white. */
+  --color-surface: #ffffff;
+}
+
+/*
+ * Dark mode, part 1: swap the slate scale end-for-end. Every neutral in the app
+ * is slate (text-slate-500, border-slate-200, bg-slate-50 ...), so this flips
+ * them all to sensible dark-mode values without dark: variants everywhere.
+ * Secondary text (500) moves to 400 so it keeps readable contrast on dark.
+ */
+.dark {
+  --color-income: #338ced;  /* palette dark steps, as in charts/chartSetup.js */
+  --color-expense: #e76624;
+  --color-surface: oklch(20.8% 0.042 265.755);   /* slate-900 */
+  --color-slate-50: oklch(12.9% 0.042 264.695);  /* 950 */
+  --color-slate-100: oklch(27.9% 0.041 260.031); /* 800 */
+  --color-slate-200: oklch(32% 0.043 258.5);     /* between 700 and 800 */
+  --color-slate-300: oklch(44.6% 0.043 257.281); /* 600 */
+  --color-slate-400: oklch(55.4% 0.046 257.417); /* 500 */
+  --color-slate-500: oklch(70.4% 0.04 256.788);  /* 400 */
+  --color-slate-600: oklch(86.9% 0.022 252.894); /* 300 */
+  --color-slate-700: oklch(92.9% 0.013 255.508); /* 200 */
+  --color-slate-800: oklch(96.8% 0.007 247.896); /* 100 */
+  --color-slate-900: oklch(98.4% 0.003 247.858); /* 50 */
+}
+
+/* Dark mode, part 2: semantic colours that need their own dark step. */
+@utility text-positive {
+  color: var(--color-green-700);
+  @variant dark {
+    color: var(--color-green-400);
+  }
+}
+@utility text-negative {
+  color: var(--color-red-700);
+  @variant dark {
+    color: var(--color-red-400);
+  }
+}
+@utility text-caution {
+  color: var(--color-amber-700);
+  @variant dark {
+    color: var(--color-amber-400);
+  }
 }
 
 @layer components {
   .card {
-    @apply rounded-xl border border-slate-200 bg-white p-5 shadow-sm;
+    @apply rounded-xl border border-slate-200 bg-surface p-5 shadow-sm;
   }
   .label {
     @apply mb-1 block text-sm font-medium text-slate-700;
   }
   .input {
-    @apply block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm
+    @apply block w-full rounded-lg border border-slate-300 bg-surface px-3 py-2 text-sm shadow-sm
       placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30
-      disabled:bg-slate-100;
+      disabled:bg-slate-100 dark:[color-scheme:dark];
   }
   .btn {
     @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition
@@ -25,18 +72,23 @@
   }
   /* Use together with .btn, e.g. class="btn btn-primary" */
   .btn-primary {
-    @apply bg-indigo-600 text-white hover:bg-indigo-700;
+    @apply bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-400;
   }
   .btn-secondary {
-    @apply border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
+    @apply border border-slate-300 bg-surface text-slate-700 hover:bg-slate-50;
   }
   .btn-danger {
     @apply bg-red-600 text-white hover:bg-red-700;
   }
   .btn-link {
-    @apply text-sm font-medium text-indigo-600 hover:text-indigo-800 disabled:opacity-50;
+    @apply text-sm font-medium text-indigo-600 hover:text-indigo-800 disabled:opacity-50
+      dark:text-indigo-400 dark:hover:text-indigo-300;
+  }
+  .link-danger {
+    @apply text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300;
   }
   .alert-error {
-    @apply rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700;
+    @apply rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700
+      dark:border-red-900 dark:bg-red-950/50 dark:text-red-300;
   }
 }

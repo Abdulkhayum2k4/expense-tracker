@@ -46,7 +46,7 @@ async function submit() {
     </form>
     <template #footer>
       New here?
-      <RouterLink to="/register" class="font-medium text-indigo-600 hover:text-indigo-800">Create an account</RouterLink>
+      <RouterLink to="/register" class="btn-link">Create an account</RouterLink>
     </template>
   </AuthLayout>
 </template>

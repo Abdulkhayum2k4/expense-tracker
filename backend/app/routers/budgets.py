@@ -4,36 +4,13 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Query, Response, status
 from pymongo.errors import DuplicateKeyError
 
+from app.budget_utils import budget_out as _budget_out
+from app.budget_utils import spent_by_category as _spent_by_category
 from app.database import get_db
 from app.deps import CurrentUser, parse_object_id
 from app.schemas import BudgetIn, BudgetOut
-from app.serializers import month_range
 
 router = APIRouter(prefix="/api/budgets", tags=["budgets"])
-
-
-async def _spent_by_category(user_id, year: int, month: int) -> dict[str, float]:
-    start, end = month_range(year, month)
-    pipeline = [
-        {"$match": {"user_id": user_id, "type": "expense", "date": {"$gte": start, "$lt": end}}},
-        {"$group": {"_id": "$category", "total": {"$sum": "$amount"}}},
-    ]
-    cursor = await get_db().transactions.aggregate(pipeline)
-    return {row["_id"]: row["total"] async for row in cursor}
-
-
-def _budget_out(doc: dict, spent: float) -> dict:
-    limit = doc["monthly_limit"]
-    return {
-        "id": str(doc["_id"]),
-        "category": doc["category"],
-        "monthly_limit": limit,
-        "month": doc["month"],
-        "year": doc["year"],
-        "spent": round(spent, 2),
-        "remaining": round(limit - spent, 2),
-        "percent_used": round(spent / limit * 100, 1) if limit else 0.0,
-    }
 
 
 async def _ensure_expense_category(user_id, name: str) -> None:

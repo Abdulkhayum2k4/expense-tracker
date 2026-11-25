@@ -114,7 +114,7 @@ function changeLabel(row) {
       </div>
       <div class="card">
         <p class="text-sm text-slate-500">Saved in {{ year }}</p>
-        <p class="mt-2 text-2xl font-semibold" :class="yearStats.savings < 0 ? 'text-red-700' : ''">
+        <p class="mt-2 text-2xl font-semibold" :class="yearStats.savings < 0 ? 'text-negative' : ''">
           {{ formatMoney(yearStats.savings) }}
         </p>
         <p class="mt-1 text-xs text-slate-500">
@@ -162,7 +162,7 @@ function changeLabel(row) {
               v-for="t in ['expense', 'income']"
               :key="t"
               class="rounded-md px-3 py-1 capitalize"
-              :class="breakdownType === t ? 'bg-white shadow-sm' : 'text-slate-500'"
+              :class="breakdownType === t ? 'bg-surface shadow-sm' : 'text-slate-500'"
               @click="breakdownType = t"
             >
               {{ t }}
@@ -222,7 +222,7 @@ function changeLabel(row) {
               <!-- More spending is shown as bad (red), less as good (green); the arrow carries it too. -->
               <span
                 class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium tabular-nums"
-                :class="r.change > 0 ? 'bg-red-50 text-red-700' : r.change < 0 ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-600'"
+                :class="r.change > 0 ? 'bg-red-50 text-negative dark:bg-red-500/15' : r.change < 0 ? 'bg-green-50 text-positive dark:bg-green-500/15' : 'bg-slate-100 text-slate-600'"
               >
                 <span aria-hidden="true">{{ r.change > 0 ? '▲' : r.change < 0 ? '▼' : '' }}</span>
                 {{ changeLabel(r) }}

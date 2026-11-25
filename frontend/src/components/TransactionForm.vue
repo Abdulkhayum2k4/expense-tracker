@@ -1,7 +1,8 @@
 <script setup>
 import { computed, reactive, ref, watch } from 'vue'
 import { errorMessage, transactionsApi } from '@/api/client'
-import { todayIso } from '@/utils/format'
+import { toast } from '@/stores/toast'
+import { formatMoney, todayIso } from '@/utils/format'
 
 const props = defineProps({
   /** Existing transaction to edit, or null to create one. */
@@ -32,6 +33,17 @@ watch(
   { immediate: true },
 )
 
+/** The API sets budget_alert when this save pushed a budget past 80% or over 100%. */
+function announceBudgetAlert(alert) {
+  if (!alert) return
+  const amounts = `${formatMoney(alert.spent)} of ${formatMoney(alert.monthly_limit)}`
+  if (alert.level === 'exceeded') {
+    toast.show(`${alert.category} is over budget: ${amounts} (${alert.percent_used}%)`, { kind: 'error', timeout: 8000 })
+  } else {
+    toast.show(`${alert.category} budget is at ${alert.percent_used}%: ${amounts}`, { kind: 'warning', timeout: 8000 })
+  }
+}
+
 async function submit() {
   error.value = ''
   saving.value = true
@@ -40,6 +52,8 @@ async function submit() {
     const saved = props.transaction
       ? await transactionsApi.update(props.transaction.id, payload)
       : await transactionsApi.create(payload)
+    toast.show(props.transaction ? 'Transaction updated' : 'Transaction added')
+    announceBudgetAlert(saved.budget_alert)
     emit('saved', saved)
   } catch (e) {
     error.value = errorMessage(e)
@@ -57,7 +71,7 @@ async function submit() {
         :key="t"
         type="button"
         class="rounded-md py-1.5 text-sm font-medium capitalize transition"
-        :class="form.type === t ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+        :class="form.type === t ? 'bg-surface text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
         @click="form.type = t"
       >
         {{ t }}

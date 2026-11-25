@@ -100,7 +100,7 @@ onMounted(load)
       </div>
       <div class="card">
         <p class="text-sm text-slate-500">Savings</p>
-        <p class="mt-2 text-2xl font-semibold" :class="summary?.savings < 0 ? 'text-red-700' : 'text-slate-900'">
+        <p class="mt-2 text-2xl font-semibold" :class="summary?.savings < 0 ? 'text-negative' : 'text-slate-900'">
           {{ summary ? formatMoney(summary.savings) : '—' }}
         </p>
         <p class="mt-1 text-xs text-slate-500">
@@ -122,7 +122,7 @@ onMounted(load)
               v-for="t in ['expense', 'income']"
               :key="t"
               class="rounded-md px-3 py-1 capitalize"
-              :class="breakdownType === t ? 'bg-white shadow-sm' : 'text-slate-500'"
+              :class="breakdownType === t ? 'bg-surface shadow-sm' : 'text-slate-500'"
               @click="breakdownType = t"
             >
               {{ t }}
@@ -190,7 +190,7 @@ onMounted(load)
             <p class="truncate font-medium">{{ t.title }}</p>
             <p class="text-xs text-slate-500">{{ t.category }} · {{ formatDate(t.date) }}</p>
           </div>
-          <span class="font-medium tabular-nums" :class="t.type === 'income' ? 'text-green-700' : 'text-slate-900'">
+          <span class="font-medium tabular-nums" :class="t.type === 'income' ? 'text-positive' : 'text-slate-900'">
             {{ t.type === 'income' ? '+' : '−' }}{{ formatMoney(t.amount) }}
           </span>
         </li>

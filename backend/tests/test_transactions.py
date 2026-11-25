@@ -1,5 +1,6 @@
 def test_crud(client, user, add_tx):
     tx = add_tx(user, title="Lunch", amount=250.5, description="with friends")
+    assert tx.pop("budget_alert") is None
     assert tx["date"] == "2026-11-24" and tx["amount"] == 250.5
 
     got = client.get(f"/api/transactions/{tx['id']}", headers=user.h)

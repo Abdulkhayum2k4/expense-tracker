@@ -4,9 +4,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query, Response, status
 
+from app.budget_utils import BudgetWatch
 from app.database import get_db
 from app.deps import CurrentUser, parse_object_id
-from app.schemas import TransactionIn, TransactionOut, TransactionPage, TxType
+from app.schemas import TransactionIn, TransactionOut, TransactionPage, TransactionSaved, TxType
 from app.serializers import to_utc_datetime, transaction_out
 
 router = APIRouter(prefix="/api/transactions", tags=["transactions"])
@@ -67,13 +68,19 @@ async def list_transactions(
     return {"items": items, "total": total, "page": page, "page_size": page_size}
 
 
-@router.post("", response_model=TransactionOut, status_code=status.HTTP_201_CREATED)
+def _budget_watch(user: dict, data: TransactionIn) -> BudgetWatch:
+    return BudgetWatch(user, data.type, data.category, data.date.year, data.date.month)
+
+
+@router.post("", response_model=TransactionSaved, status_code=status.HTTP_201_CREATED)
 async def create_transaction(data: TransactionIn, user: CurrentUser):
     await _ensure_category_exists(user["_id"], data.category, data.type)
+    watch = _budget_watch(user, data)
+    await watch.before()
     doc = {"user_id": user["_id"], **_to_doc(data)}
     result = await get_db().transactions.insert_one(doc)
     doc["_id"] = result.inserted_id
-    return transaction_out(doc)
+    return {**transaction_out(doc), "budget_alert": await watch.after()}
 
 
 @router.get("/{transaction_id}", response_model=TransactionOut)
@@ -85,10 +92,12 @@ async def get_transaction(transaction_id: str, user: CurrentUser):
     return transaction_out(doc)
 
 
-@router.put("/{transaction_id}", response_model=TransactionOut)
+@router.put("/{transaction_id}", response_model=TransactionSaved)
 async def update_transaction(transaction_id: str, data: TransactionIn, user: CurrentUser):
     oid = parse_object_id(transaction_id, "Transaction")
     await _ensure_category_exists(user["_id"], data.category, data.type)
+    watch = _budget_watch(user, data)
+    await watch.before()
     doc = await get_db().transactions.find_one_and_update(
         {"_id": oid, "user_id": user["_id"]},
         {"$set": _to_doc(data)},
@@ -96,7 +105,7 @@ async def update_transaction(transaction_id: str, data: TransactionIn, user: Cur
     )
     if doc is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Transaction not found")
-    return transaction_out(doc)
+    return {**transaction_out(doc), "budget_alert": await watch.after()}
 
 
 @router.delete("/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)

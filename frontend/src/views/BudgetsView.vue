@@ -165,7 +165,7 @@ onMounted(async () => {
               </template>
               <template v-else>
                 <button class="btn-link" @click="startEdit(b)">Edit limit</button>
-                <button class="text-sm font-medium text-red-600 hover:text-red-800" @click="remove(b)">Remove</button>
+                <button class="link-danger" @click="remove(b)">Remove</button>
               </template>
             </div>
           </li>
