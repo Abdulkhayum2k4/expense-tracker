@@ -66,6 +66,10 @@ export const transactionsApi = {
   create: (data) => api.post('/transactions', data).then((r) => r.data),
   update: (id, data) => api.put(`/transactions/${id}`, data).then((r) => r.data),
   remove: (id) => api.delete(`/transactions/${id}`),
+  importRows: (rows, create_missing_categories) =>
+    api.post('/transactions/import', { rows, create_missing_categories }, { timeout: 60000 }).then((r) => r.data),
+  /** URL for a plain download link; the auth cookie goes with it. */
+  exportUrl: (params) => `${API_BASE}/transactions/export?${new URLSearchParams(params)}`,
 }
 
 export const budgetsApi = {

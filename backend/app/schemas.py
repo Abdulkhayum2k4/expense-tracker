@@ -103,6 +103,24 @@ class TransactionSaved(TransactionOut):
     budget_alert: BudgetAlert | None = None
 
 
+class ImportRequest(BaseModel):
+    # Raw dicts: each row is validated separately so one bad row doesn't reject the file.
+    rows: list[dict] = Field(min_length=1, max_length=5000)
+    create_missing_categories: bool = True
+
+
+class ImportRowError(BaseModel):
+    row: int  # 1-based position in `rows`
+    message: str
+
+
+class ImportResult(BaseModel):
+    created: int
+    skipped_duplicates: int
+    created_categories: list[str]
+    errors: list[ImportRowError]
+
+
 class TransactionPage(BaseModel):
     items: list[TransactionOut]
     total: int

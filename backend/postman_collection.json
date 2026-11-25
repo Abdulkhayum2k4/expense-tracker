@@ -149,6 +149,16 @@
             }
           }
         },
+        { "name": "Export CSV", "request": { "method": "GET", "url": "{{baseUrl}}/transactions/export?type=expense" } },
+        {
+          "name": "Import rows",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/transactions/import",
+            "body": { "mode": "raw", "raw": "{\n  \"create_missing_categories\": true,\n  \"rows\": [\n    { \"title\": \"Coffee\", \"amount\": 120, \"type\": \"expense\", \"category\": \"Food\", \"date\": \"2026-11-05\" },\n    { \"title\": \"Gym\", \"amount\": 1500, \"type\": \"expense\", \"category\": \"Fitness\", \"date\": \"2026-11-06\" }\n  ]\n}" }
+          }
+        },
         { "name": "Get one", "request": { "method": "GET", "url": "{{baseUrl}}/transactions/{{transactionId}}" } },
         {
           "name": "Update",

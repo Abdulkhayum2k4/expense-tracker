@@ -130,6 +130,8 @@ Every query is scoped to the logged-in user.
 | GET/POST | `/api/categories` | `?type=expense\|income` |
 | PUT/DELETE | `/api/categories/{id}` | a rename carries over to transactions and budgets; delete is refused while transactions use it |
 | GET/POST | `/api/transactions` | filters: `type, category, start_date, end_date, search, page, page_size` |
+| GET | `/api/transactions/export` | CSV download (UTF-8 with BOM) of everything matching the same filters as the list |
+| POST | `/api/transactions/import` | `{rows: [transaction…] (max 5000), create_missing_categories}` → `{created, skipped_duplicates, created_categories, errors: [{row, message}]}`. Rows matching an existing transaction (date, title, amount, type) are skipped |
 | GET/PUT/DELETE | `/api/transactions/{id}` | POST and PUT responses include `budget_alert` when the change pushed that month's budget past 80% (`warning`) or 100% (`exceeded`) |
 | GET/POST | `/api/budgets` | `?month=&year=` (defaults to the current month). Each budget includes `spent`, `remaining`, `percent_used` |
 | PUT/DELETE | `/api/budgets/{id}` | |
@@ -143,7 +145,7 @@ Every query is scoped to the logged-in user.
 | Module | What it does |
 |---|---|
 | Dashboard | Total balance, this month's income, expenses and savings (with savings rate), category chart, budget progress, yearly trend, recent transactions |
-| Transactions | Add, edit, delete and view income and expenses, with search, filters and paging |
+| Transactions | Add, edit, delete and view income and expenses, with search, filters and paging. Export to CSV; import a bank statement CSV (column mapping, preview, duplicate skipping) |
 | Categories | Default set on sign-up (Food, Transport, Shopping, Bills, Salary…); add, rename, delete |
 | Analytics | Year totals and averages, monthly income vs spending, net savings per month, category breakdown for a month or year, month-over-month change per category |
 | Budgets | Monthly limit per expense category with spent / remaining / % used, and copying last month's budgets. A notice pops up when an expense takes a budget past 80% or over its limit |

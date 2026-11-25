@@ -1,8 +1,11 @@
 <script setup>
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onMounted, reactive, ref, watch } from 'vue'
 import BaseModal from '@/components/BaseModal.vue'
 import TransactionForm from '@/components/TransactionForm.vue'
+// Loaded on first use: it pulls in the CSV parser.
+const ImportDialog = defineAsyncComponent(() => import('@/components/ImportDialog.vue'))
 import { categoriesApi, errorMessage, transactionsApi } from '@/api/client'
+import { toast } from '@/stores/toast'
 import { formatDate, formatMoney } from '@/utils/format'
 
 const PAGE_SIZE = 15
@@ -69,6 +72,21 @@ function onSaved() {
   load()
 }
 
+const importing = ref(false)
+
+const exportUrl = computed(() => {
+  const params = {}
+  for (const [k, v] of Object.entries(filters)) if (v) params[k] = v
+  return transactionsApi.exportUrl(params)
+})
+
+async function onImported(res) {
+  toast.show(`Imported ${res.created} transactions`)
+  page.value = 1
+  load()
+  if (res.created_categories.length) categories.value = await categoriesApi.list()
+}
+
 async function confirmDelete() {
   deleteError.value = ''
   try {
@@ -95,7 +113,19 @@ onMounted(async () => {
   <div class="space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <h1 class="text-2xl font-semibold">Transactions</h1>
-      <button class="btn btn-primary" @click="editing = {}">+ Add transaction</button>
+      <div class="flex flex-wrap gap-2">
+        <button class="btn btn-secondary" @click="importing = true">Import CSV</button>
+        <a
+          class="btn btn-secondary"
+          :class="{ 'pointer-events-none opacity-60': !result.total }"
+          :href="exportUrl"
+          download
+          :title="hasFilters ? 'Exports the transactions matching the current filters' : 'Exports all transactions'"
+        >
+          Export CSV
+        </a>
+        <button class="btn btn-primary" @click="editing = {}">+ Add transaction</button>
+      </div>
     </div>
 
     <!-- Filters -->
@@ -222,5 +252,7 @@ onMounted(async () => {
         <button class="btn btn-danger" @click="confirmDelete">Delete</button>
       </div>
     </BaseModal>
+
+    <ImportDialog v-if="importing" :categories="categories" @imported="onImported" @close="importing = false" />
   </div>
 </template>
