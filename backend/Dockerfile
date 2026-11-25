@@ -18,5 +18,7 @@ USER appuser
 
 EXPOSE 8000
 
-# --proxy-headers: trust X-Forwarded-For from nginx / Render so the client IP is right
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips=*"]
+# PORT is set by hosts like Render; locally it defaults to 8000.
+# --proxy-headers: trust X-Forwarded-For from nginx / Vercel / Render so the client IP is right
+# (the login rate limit is per IP).
+CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]

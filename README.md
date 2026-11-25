@@ -34,6 +34,10 @@ frontend/
     components/        nav, modal, transaction form, budget bar, charts
 ```
 
+## Deploy online
+
+See [DEPLOY.md](DEPLOY.md): MongoDB Atlas + Render (API) + Vercel (frontend), all on free tiers.
+
 ## Run with Docker (easiest)
 
 Needs only [Docker Desktop](https://www.docker.com/products/docker-desktop/).
