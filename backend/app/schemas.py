@@ -148,6 +148,46 @@ class BudgetOut(BaseModel):
     percent_used: float
 
 
+# ---------- Savings goals ----------
+
+class GoalIn(BaseModel):
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=60)]
+    target_amount: Money
+    target_date: date | None = None
+
+
+class ContributionIn(BaseModel):
+    """A positive amount adds money to the goal; a negative amount is a withdrawal."""
+    amount: Annotated[float, Field(ge=-1_000_000_000, le=1_000_000_000), AfterValidator(lambda v: round(v, 2))]
+    date: date
+    note: Annotated[str, StringConstraints(strip_whitespace=True, max_length=200)] = ""
+
+
+class ContributionOut(BaseModel):
+    id: str
+    amount: float
+    date: date
+    note: str
+
+
+GoalStatus = Literal["completed", "on_track", "behind", "no_deadline"]
+
+
+class GoalOut(BaseModel):
+    id: str
+    name: str
+    target_amount: float
+    target_date: date | None
+    created_at: date
+    saved: float
+    remaining: float
+    percent: float
+    months_left: int | None  # None without a target date
+    monthly_needed: float | None  # to reach the target by its date; None when done or no date
+    status: GoalStatus
+    contributions: list[ContributionOut]  # newest first
+
+
 # ---------- Analytics ----------
 
 class CategoryTotal(BaseModel):

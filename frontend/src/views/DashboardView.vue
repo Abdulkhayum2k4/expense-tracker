@@ -4,9 +4,10 @@ import '@/components/charts/chartSetup'
 import TrendChart from '@/components/charts/TrendChart.vue'
 import CategoryChart from '@/components/charts/CategoryChart.vue'
 import BudgetBar from '@/components/BudgetBar.vue'
+import GoalProgress from '@/components/GoalProgress.vue'
 import BaseModal from '@/components/BaseModal.vue'
 import TransactionForm from '@/components/TransactionForm.vue'
-import { analyticsApi, budgetsApi, categoriesApi, errorMessage } from '@/api/client'
+import { analyticsApi, budgetsApi, categoriesApi, errorMessage, goalsApi } from '@/api/client'
 import { auth } from '@/stores/auth'
 import { currentMonthValue, formatDate, formatMoney, monthLabel, parseMonthValue } from '@/utils/format'
 
@@ -58,8 +59,16 @@ function onSaved() {
   load()
 }
 
+// Goals don't depend on the selected month: load them once. The list is already
+// sorted with the nearest deadline first and completed goals last.
+const goals = ref([])
+const topGoals = computed(() => goals.value.filter((g) => g.status !== 'completed').slice(0, 3))
+
 watch(monthValue, (v) => v && load())
-onMounted(load)
+onMounted(() => {
+  load()
+  goalsApi.list().then((g) => (goals.value = g)).catch(() => {})
+})
 </script>
 
 <template>
@@ -152,20 +161,37 @@ onMounted(load)
         </p>
       </section>
 
-      <!-- Budgets -->
-      <section class="card lg:col-span-2">
-        <div class="mb-4 flex items-center justify-between">
-          <h2 class="font-semibold">Budgets</h2>
-          <RouterLink to="/budgets" class="btn-link">Manage</RouterLink>
-        </div>
-        <div v-if="budgets.length" class="space-y-4">
-          <BudgetBar v-for="b in budgets" :key="b.id" :budget="b" />
-        </div>
-        <p v-else class="py-12 text-center text-sm text-slate-500">
-          No budgets for this month.
-          <RouterLink to="/budgets" class="btn-link">Set one</RouterLink>
-        </p>
-      </section>
+      <div class="space-y-6 lg:col-span-2">
+        <!-- Budgets -->
+        <section class="card">
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="font-semibold">Budgets</h2>
+            <RouterLink to="/budgets" class="btn-link">Manage</RouterLink>
+          </div>
+          <div v-if="budgets.length" class="space-y-4">
+            <BudgetBar v-for="b in budgets" :key="b.id" :budget="b" />
+          </div>
+          <p v-else class="py-8 text-center text-sm text-slate-500">
+            No budgets for this month.
+            <RouterLink to="/budgets" class="btn-link">Set one</RouterLink>
+          </p>
+        </section>
+
+        <!-- Savings goals (not tied to the selected month) -->
+        <section class="card">
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="font-semibold">Savings goals</h2>
+            <RouterLink to="/goals" class="btn-link">Manage</RouterLink>
+          </div>
+          <div v-if="topGoals.length" class="space-y-4">
+            <GoalProgress v-for="g in topGoals" :key="g.id" :goal="g" compact />
+          </div>
+          <p v-else class="py-8 text-center text-sm text-slate-500">
+            No active goals.
+            <RouterLink to="/goals" class="btn-link">Create one</RouterLink>
+          </p>
+        </section>
+      </div>
     </div>
 
     <!-- Year trend -->

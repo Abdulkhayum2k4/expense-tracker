@@ -8,7 +8,7 @@ from slowapi.errors import RateLimitExceeded
 from app import database
 from app.config import settings
 from app.rate_limit import limiter
-from app.routers import analytics, auth, budgets, categories, transactions
+from app.routers import analytics, auth, budgets, categories, goals, transactions
 
 
 @asynccontextmanager
@@ -34,6 +34,7 @@ app.include_router(auth.router)
 app.include_router(categories.router)
 app.include_router(transactions.router)
 app.include_router(budgets.router)
+app.include_router(goals.router)
 app.include_router(analytics.router)
 
 

@@ -135,6 +135,10 @@ Every query is scoped to the logged-in user.
 | GET/PUT/DELETE | `/api/transactions/{id}` | POST and PUT responses include `budget_alert` when the change pushed that month's budget past 80% (`warning`) or 100% (`exceeded`) |
 | GET/POST | `/api/budgets` | `?month=&year=` (defaults to the current month). Each budget includes `spent`, `remaining`, `percent_used` |
 | PUT/DELETE | `/api/budgets/{id}` | |
+| GET/POST | `/api/goals` | `{name, target_amount, target_date?}`. Each goal includes `saved`, `remaining`, `percent`, `months_left`, `monthly_needed` and `status` (`completed` / `on_track` / `behind` / `no_deadline`) |
+| PUT/DELETE | `/api/goals/{id}` | |
+| POST | `/api/goals/{id}/contributions` | `{amount, date, note?}`: positive adds money, negative withdraws (never below zero) |
+| DELETE | `/api/goals/{id}/contributions/{cid}` | |
 | GET | `/api/analytics/summary` | `?month=&year=`: dashboard data: income, expense, savings and savings rate, total balance (all transactions to the end of that month), per-category breakdown, 5 latest transactions |
 | GET | `/api/analytics/trend` | `?year=`: income and expense for each month |
 | GET | `/api/analytics/breakdown` | `?year=&month=`: category totals for a month, or for the whole year when `month` is omitted |
@@ -149,11 +153,13 @@ Every query is scoped to the logged-in user.
 | Categories | Default set on sign-up (Food, Transport, Shopping, Bills, Salary…); add, rename, delete |
 | Analytics | Year totals and averages, monthly income vs spending, net savings per month, category breakdown for a month or year, month-over-month change per category |
 | Budgets | Monthly limit per expense category with spent / remaining / % used, and copying last month's budgets. A notice pops up when an expense takes a budget past 80% or over its limit |
+| Savings goals | Targets with optional deadlines; add or withdraw money, see the monthly amount needed and whether you're on pace. Kept separate from income/expenses |
 | Settings | Name, display currency (INR, USD, EUR, GBP, AED, SAR, SGD, AUD, CAD, JPY), budget alerts on/off, light/dark/system theme, change password, delete account |
 
 ## Data model
 
-Four collections, matching the design: `users`, `transactions`, `categories`, `budgets`.
+Five collections: `users`, `transactions`, `categories`, `budgets` (as in the original design) and `goals`
+(each goal embeds its `contributions`).
 
 - `user_id` fields hold the user's ObjectId.
 - Transaction `date` is stored as a BSON date at midnight UTC. The API sends and receives `YYYY-MM-DD`.

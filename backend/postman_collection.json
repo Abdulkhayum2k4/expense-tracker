@@ -13,7 +13,8 @@
     { "key": "token", "value": "" },
     { "key": "transactionId", "value": "" },
     { "key": "categoryId", "value": "" },
-    { "key": "budgetId", "value": "" }
+    { "key": "budgetId", "value": "" },
+    { "key": "goalId", "value": "" }
   ],
   "item": [
     {
@@ -196,6 +197,32 @@
           }
         },
         { "name": "Delete", "request": { "method": "DELETE", "url": "{{baseUrl}}/budgets/{{budgetId}}" } }
+      ]
+    },
+    {
+      "name": "Goals",
+      "item": [
+        { "name": "List", "request": { "method": "GET", "url": "{{baseUrl}}/goals" } },
+        {
+          "name": "Create",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.collectionVariables.set('goalId', pm.response.json().id);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/goals",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"New laptop\",\n  \"target_amount\": 80000,\n  \"target_date\": \"2027-06-30\"\n}" }
+          }
+        },
+        {
+          "name": "Add money",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/goals/{{goalId}}/contributions",
+            "body": { "mode": "raw", "raw": "{\n  \"amount\": 5000,\n  \"date\": \"2026-11-25\",\n  \"note\": \"November\"\n}" }
+          }
+        },
+        { "name": "Delete", "request": { "method": "DELETE", "url": "{{baseUrl}}/goals/{{goalId}}" } }
       ]
     },
     {

@@ -35,6 +35,7 @@ async def _create_indexes() -> None:
     await db.categories.create_index(
         [("user_id", ASCENDING), ("type", ASCENDING), ("name", ASCENDING)], unique=True
     )
+    await db.goals.create_index([("user_id", ASCENDING), ("created_at", ASCENDING)])
     await db.budgets.create_index(
         [("user_id", ASCENDING), ("year", ASCENDING), ("month", ASCENDING), ("category", ASCENDING)],
         unique=True,

@@ -11,6 +11,7 @@ const links = [
   { to: '/transactions', label: 'Transactions' },
   { to: '/analytics', label: 'Analytics' },
   { to: '/budgets', label: 'Budgets' },
+  { to: '/goals', label: 'Goals' },
   { to: '/categories', label: 'Categories' },
 ]
 
@@ -43,7 +44,7 @@ async function logout() {
         <span>Expense Tracker</span>
       </RouterLink>
 
-      <div class="hidden items-center gap-1 md:flex">
+      <div class="hidden items-center gap-1 lg:flex">
         <RouterLink
           v-for="link in links"
           :key="link.to"
@@ -55,7 +56,7 @@ async function logout() {
         </RouterLink>
       </div>
 
-      <div class="hidden items-center gap-2 md:flex">
+      <div class="hidden items-center gap-2 lg:flex">
         <button
           class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
           :aria-label="theme.isDark.value ? 'Switch to light mode' : 'Switch to dark mode'"
@@ -82,7 +83,7 @@ async function logout() {
       </div>
 
       <button
-        class="rounded-lg p-2 text-slate-600 hover:bg-slate-100 md:hidden"
+        class="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
         :aria-expanded="menuOpen"
         aria-label="Toggle menu"
         @click="menuOpen = !menuOpen"
@@ -94,7 +95,7 @@ async function logout() {
       </button>
     </nav>
 
-    <div v-if="menuOpen" class="border-t border-slate-200 px-4 py-3 md:hidden">
+    <div v-if="menuOpen" class="border-t border-slate-200 px-4 py-3 lg:hidden">
       <RouterLink
         v-for="link in links"
         :key="link.to"

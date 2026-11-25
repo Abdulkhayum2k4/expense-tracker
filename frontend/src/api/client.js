@@ -79,6 +79,17 @@ export const budgetsApi = {
   remove: (id) => api.delete(`/budgets/${id}`),
 }
 
+export const goalsApi = {
+  list: () => api.get('/goals').then((r) => r.data),
+  create: (data) => api.post('/goals', data).then((r) => r.data),
+  update: (id, data) => api.put(`/goals/${id}`, data).then((r) => r.data),
+  remove: (id) => api.delete(`/goals/${id}`),
+  /** amount > 0 adds money, amount < 0 withdraws */
+  contribute: (id, data) => api.post(`/goals/${id}/contributions`, data).then((r) => r.data),
+  removeContribution: (id, contributionId) =>
+    api.delete(`/goals/${id}/contributions/${contributionId}`).then((r) => r.data),
+}
+
 export const analyticsApi = {
   summary: (month, year) => api.get('/analytics/summary', { params: { month, year } }).then((r) => r.data),
   trend: (year) => api.get('/analytics/trend', { params: { year } }).then((r) => r.data),
