@@ -32,7 +32,23 @@ frontend/
     components/        nav, modal, transaction form, budget bar, charts
 ```
 
-## Running it locally
+## Run with Docker (easiest)
+
+Needs only [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+
+```bash
+copy .env.example .env          # macOS/Linux: cp .env.example .env
+# put a random value in JWT_SECRET (see the comment in the file)
+docker compose up --build
+```
+
+Open http://localhost:8080. MongoDB data is kept in the `mongo-data` volume between restarts
+(`docker compose down -v` deletes it).
+
+For development with hot reload, start only the database with `docker compose up mongo` and run the
+backend and frontend as described below. Mongo is published on `localhost:27017`, the default `MONGODB_URL`.
+
+## Running it locally without Docker
 
 You need **Python 3.11+**, **Node 20+**, and a **MongoDB** server: either
 [MongoDB Community Server](https://www.mongodb.com/try/download/community) on your machine
