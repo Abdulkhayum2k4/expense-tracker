@@ -1,11 +1,14 @@
 # Full stack:      docker compose up --build      -> http://localhost:8080
-# Database only:   docker compose up mongo        (for `fastapi dev` + `npm run dev`)
+# Database only:   docker compose up mongo        -> mongodb://localhost:27018
+#                  (for `fastapi dev` + `npm run dev`; set MONGODB_URL in backend/.env)
 services:
   mongo:
     image: mongo:8
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      # Localhost only (this Mongo has no password), and 27018 so it doesn't
+      # clash with a MongoDB already installed on the machine (27017).
+      - "127.0.0.1:27018:27017"
     volumes:
       - mongo-data:/data/db
     healthcheck:

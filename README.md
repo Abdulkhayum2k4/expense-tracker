@@ -51,8 +51,9 @@ docker compose up --build
 Open http://localhost:8080. MongoDB data is kept in the `mongo-data` volume between restarts
 (`docker compose down -v` deletes it).
 
-For development with hot reload, start only the database with `docker compose up mongo` and run the
-backend and frontend as described below. Mongo is published on `localhost:27017`, the default `MONGODB_URL`.
+For development with hot reload you can start only the database with `docker compose up mongo` and run the
+backend and frontend as described below, with `MONGODB_URL=mongodb://localhost:27018` in `backend/.env`.
+(The Docker Mongo uses port 27018 on localhost only, so it doesn't clash with a locally installed MongoDB.)
 
 ## Running it locally without Docker
 
