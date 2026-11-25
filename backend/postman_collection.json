@@ -1,0 +1,171 @@
+{
+  "info": {
+    "name": "Expense Tracker API",
+    "description": "Run Register or Login first: the token is saved to the collection variable {{token}} and used by every other request.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000/api" },
+    { "key": "token", "value": "" },
+    { "key": "transactionId", "value": "" },
+    { "key": "categoryId", "value": "" },
+    { "key": "budgetId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('201 Created', () => pm.response.to.have.status(201));",
+            "pm.collectionVariables.set('token', pm.response.json().access_token);"
+          ] } }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Abdul\",\n  \"email\": \"abdul@example.com\",\n  \"password\": \"password123\"\n}" }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "pm.collectionVariables.set('token', pm.response.json().access_token);"
+          ] } }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"abdul@example.com\",\n  \"password\": \"password123\"\n}" }
+          }
+        },
+        { "name": "Me", "request": { "method": "GET", "url": "{{baseUrl}}/auth/me" } }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        { "name": "List", "request": { "method": "GET", "url": "{{baseUrl}}/categories" } },
+        {
+          "name": "Create",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.collectionVariables.set('categoryId', pm.response.json().id);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/categories",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Groceries\",\n  \"type\": \"expense\"\n}" }
+          }
+        },
+        {
+          "name": "Rename",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/categories/{{categoryId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Supermarket\",\n  \"type\": \"expense\"\n}" }
+          }
+        },
+        { "name": "Delete", "request": { "method": "DELETE", "url": "{{baseUrl}}/categories/{{categoryId}}" } }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Create expense",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.collectionVariables.set('transactionId', pm.response.json().id);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/transactions",
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Lunch\",\n  \"amount\": 250,\n  \"type\": \"expense\",\n  \"category\": \"Food\",\n  \"description\": \"Lunch with friends\",\n  \"date\": \"2026-11-24\"\n}" }
+          }
+        },
+        {
+          "name": "Create income",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/transactions",
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"November salary\",\n  \"amount\": 60000,\n  \"type\": \"income\",\n  \"category\": \"Salary\",\n  \"date\": \"2026-11-01\"\n}" }
+          }
+        },
+        {
+          "name": "List (filtered)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/transactions?type=expense&start_date=2026-11-01&end_date=2026-11-30&page=1&page_size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["transactions"],
+              "query": [
+                { "key": "type", "value": "expense" },
+                { "key": "category", "value": "Food", "disabled": true },
+                { "key": "search", "value": "lunch", "disabled": true },
+                { "key": "start_date", "value": "2026-11-01" },
+                { "key": "end_date", "value": "2026-11-30" },
+                { "key": "page", "value": "1" },
+                { "key": "page_size", "value": "20" }
+              ]
+            }
+          }
+        },
+        { "name": "Get one", "request": { "method": "GET", "url": "{{baseUrl}}/transactions/{{transactionId}}" } },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/transactions/{{transactionId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Team lunch\",\n  \"amount\": 400,\n  \"type\": \"expense\",\n  \"category\": \"Food\",\n  \"description\": \"\",\n  \"date\": \"2026-11-24\"\n}" }
+          }
+        },
+        { "name": "Delete", "request": { "method": "DELETE", "url": "{{baseUrl}}/transactions/{{transactionId}}" } }
+      ]
+    },
+    {
+      "name": "Budgets",
+      "item": [
+        { "name": "List for month", "request": { "method": "GET", "url": "{{baseUrl}}/budgets?month=11&year=2026" } },
+        {
+          "name": "Create",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.collectionVariables.set('budgetId', pm.response.json().id);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/budgets",
+            "body": { "mode": "raw", "raw": "{\n  \"category\": \"Food\",\n  \"monthly_limit\": 5000,\n  \"month\": 11,\n  \"year\": 2026\n}" }
+          }
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/budgets/{{budgetId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"category\": \"Food\",\n  \"monthly_limit\": 6000,\n  \"month\": 11,\n  \"year\": 2026\n}" }
+          }
+        },
+        { "name": "Delete", "request": { "method": "DELETE", "url": "{{baseUrl}}/budgets/{{budgetId}}" } }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        { "name": "Monthly summary", "request": { "method": "GET", "url": "{{baseUrl}}/analytics/summary?month=11&year=2026" } },
+        { "name": "Year trend", "request": { "method": "GET", "url": "{{baseUrl}}/analytics/trend?year=2026" } },
+        { "name": "Breakdown (month)", "request": { "method": "GET", "url": "{{baseUrl}}/analytics/breakdown?year=2026&month=11" } },
+        { "name": "Breakdown (whole year)", "request": { "method": "GET", "url": "{{baseUrl}}/analytics/breakdown?year=2026" } },
+        { "name": "Compare with previous month", "request": { "method": "GET", "url": "{{baseUrl}}/analytics/compare?month=11&year=2026" } }
+      ]
+    }
+  ]
+}

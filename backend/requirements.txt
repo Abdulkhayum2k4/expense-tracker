@@ -1,0 +1,6 @@
+fastapi[standard]>=0.115
+pymongo>=4.13
+pydantic[email]>=2.9
+pydantic-settings>=2.6
+pwdlib[argon2]>=0.2
+PyJWT>=2.10
